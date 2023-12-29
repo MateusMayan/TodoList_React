@@ -1,11 +1,12 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 const TodoList = () => {
   // States & Ref
+  const [isCompleteScreen, setIsCompleteScreen] = React.useState(false);
   const [list, setList] = React.useState([]);
   const [inputTitle, setInputTitle] = React.useState('');
   const [inputDesc, setInputDesc] = React.useState('');
-  const inputTitleTxt = useRef();
+  const inputTitleTxt = React.useRef();
 
   //Functions
 
@@ -16,6 +17,9 @@ const TodoList = () => {
     };
 
     setList([...list, newItem]);
+
+    setInputTitle('');
+    setInputDesc('');
   };
 
   const deleteLi = ({ target }) => {
@@ -63,14 +67,28 @@ const TodoList = () => {
           Add
         </button>
       </div>
-
-      {list.map((todo, index) => (
-        <div className="task">
+      <hr width="100%" />
+      <div className="buttons">
+        <button
+          className={isCompleteScreen === false && 'active'}
+          onClick={() => setIsCompleteScreen(false)}
+        >
+          To Do
+        </button>
+        <button
+          className={isCompleteScreen === true && 'active'}
+          onClick={() => setIsCompleteScreen(true)}
+        >
+          Completed
+        </button>
+      </div>
+      {list.map(({ title, desc }, index) => (
+        <div key={index} className="task">
           <div>
-            <h4>{todo.title}</h4>
-            <span>{todo.desc}</span>
+            <h4 key={title}>{title}</h4>
+            <span key={desc}>{desc}</span>
           </div>
-          <button value={todo.title} onClick={deleteLi}>
+          <button value={title} onClick={deleteLi}>
             Delete
           </button>
         </div>
