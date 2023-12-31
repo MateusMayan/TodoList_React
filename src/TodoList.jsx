@@ -1,8 +1,11 @@
 import React from 'react';
+import { MdDelete } from 'react-icons/md';
+import { CiCircleCheck } from 'react-icons/ci';
 
 const TodoList = () => {
   // States & Ref
   const [isCompleteScreen, setIsCompleteScreen] = React.useState(false);
+  const [completeTodos, setCompleteTodos] = React.useState([]);
   const [list, setList] = React.useState([]);
   const [inputTitle, setInputTitle] = React.useState('');
   const [inputDesc, setInputDesc] = React.useState('');
@@ -17,15 +20,17 @@ const TodoList = () => {
     };
 
     setList([...list, newItem]);
-
+    localStorage.setItem('ToDoList', JSON.stringify(newItem));
     setInputTitle('');
     setInputDesc('');
   };
 
-  const deleteLi = ({ target }) => {
-    {
-      setList(list.filter(({ title }) => title !== target.value));
-    }
+  const deleteLi = (index) => {
+    let reducedTodo = [...list];
+    reducedTodo.splice(index);
+
+    localStorage.setItem('ToDoList', JSON.stringify(reducedTodo));
+    setList(reducedTodo);
   };
 
   //Return Component
@@ -88,9 +93,10 @@ const TodoList = () => {
             <h4 key={title}>{title}</h4>
             <span key={desc}>{desc}</span>
           </div>
-          <button value={title} onClick={deleteLi}>
-            Delete
-          </button>
+          <div className="icons">
+            <MdDelete className="icon" onClick={() => deleteLi(index)} />
+            <CiCircleCheck className="check-icon" />
+          </div>
         </div>
       ))}
     </section>
