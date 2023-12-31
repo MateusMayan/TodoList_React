@@ -98,13 +98,19 @@ h4 {
   text-align: left;
 }
 
-.task h4 {
+.task h3 {
   margin: 0;
 }
 
 .task span {
   color: #aaa;
   font-size: 0.8rem;
+  font-weight: 300;
+}
+
+.task p {
+  color: #aaa;
+  font-size: 0.75rem;
   font-weight: 300;
 }
 

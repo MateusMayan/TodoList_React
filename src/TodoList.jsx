@@ -5,13 +5,20 @@ import { CiCircleCheck } from 'react-icons/ci';
 const TodoList = () => {
   // States & Ref
   const [isCompleteScreen, setIsCompleteScreen] = React.useState(false);
-  const [completeTodos, setCompleteTodos] = React.useState([]);
   const [list, setList] = React.useState([]);
+  const [completeTodos, setCompleteTodos] = React.useState([]);
   const [inputTitle, setInputTitle] = React.useState('');
   const [inputDesc, setInputDesc] = React.useState('');
   const inputTitleTxt = React.useRef();
 
   //Functions
+
+  React.useEffect(() => {
+    let savedItems = JSON.parse(localStorage.getItem('ToDoList'));
+    if (savedItems) {
+      setList(savedItems);
+    }
+  }, []);
 
   const addTodo = () => {
     let newItem = {
@@ -19,15 +26,54 @@ const TodoList = () => {
       desc: inputDesc,
     };
 
-    setList([...list, newItem]);
-    localStorage.setItem('ToDoList', JSON.stringify(newItem));
+    let UpdatedList = [...list];
+    UpdatedList.push(newItem);
+    setList(UpdatedList);
+    localStorage.setItem('ToDoList', JSON.stringify(UpdatedList));
+
     setInputTitle('');
     setInputDesc('');
+    inputTitleTxt.current.focus();
   };
 
-  const deleteLi = (index) => {
+  const deleteTodo = (index) => {
+    if (isCompleteScreen === false) {
+      let reducedTodo = [...list];
+      reducedTodo.splice(index, 1);
+
+      localStorage.setItem('ToDoList', JSON.stringify(reducedTodo));
+      setList(reducedTodo);
+    }
+
+    if (isCompleteScreen === true) {
+      let reducedCompleted = [...completeTodos];
+      reducedCompleted.splice(index, 1);
+
+      localStorage.setItem('ToDoList', JSON.stringify(reducedCompleted));
+      setCompleteTodos(reducedCompleted);
+    }
+  };
+
+  const handleComplete = (index) => {
+    let now = new Date();
+    let dd = now.getDate();
+    let mm = now.getMonth() + 1;
+    let yyyy = now.getFullYear();
+    let hour = now.getHours();
+    let minute = now.getMinutes();
+    let second = now.getSeconds();
+    let completedOn = `${dd}-${mm}-${yyyy} at ${hour}:${minute}:${second}`;
+
+    let filteredTodo = {
+      ...list[index],
+      completedOn: completedOn,
+    };
+
+    let CompletedArr = [...completeTodos, filteredTodo];
+    setCompleteTodos(CompletedArr);
+
     let reducedTodo = [...list];
-    reducedTodo.splice(index);
+    reducedTodo.splice(index, 1);
 
     localStorage.setItem('ToDoList', JSON.stringify(reducedTodo));
     setList(reducedTodo);
@@ -87,18 +133,38 @@ const TodoList = () => {
           Completed
         </button>
       </div>
-      {list.map(({ title, desc }, index) => (
-        <div key={index} className="task">
-          <div>
-            <h4 key={title}>{title}</h4>
-            <span key={desc}>{desc}</span>
+      {isCompleteScreen === false &&
+        list.map((item, index) => {
+          return (
+            <div key={index} className="task">
+              <div>
+                <h3>{item.title}</h3>
+                <span>{item.desc}</span>
+              </div>
+              <div className="icons">
+                <MdDelete className="icon" onClick={deleteTodo} />
+                <CiCircleCheck
+                  className="check-icon"
+                  onClick={() => handleComplete(index)}
+                />
+              </div>
+            </div>
+          );
+        })}
+
+      {isCompleteScreen === true &&
+        completeTodos.map((item, index) => (
+          <div key={index} className="task">
+            <div>
+              <h3>{item.title}</h3>
+              <span>{item.desc}</span>
+              <p>{item.completedOn}</p>
+            </div>
+            <div className="icons">
+              <MdDelete className="icon" onClick={deleteTodo} />
+            </div>
           </div>
-          <div className="icons">
-            <MdDelete className="icon" onClick={() => deleteLi(index)} />
-            <CiCircleCheck className="check-icon" />
-          </div>
-        </div>
-      ))}
+        ))}
     </section>
   );
 };
